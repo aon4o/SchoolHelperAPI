@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+SQLAlchemy = "==1.4.29"
+fastapi = "*"
+uvicorn = "*"
+psycopg2-binary = "*"
+pylint = "*"
+django-environ = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
