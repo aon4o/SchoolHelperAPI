@@ -1,37 +1,57 @@
 from typing import List, Optional
+
 from pydantic import BaseModel
 
 
-class ItemBase(BaseModel):
-    title: str
-    
-    description: Optional[str] = None
+# CLASSES
+class SubjectBase(BaseModel):
+    guild_id: str
+    name: str
 
 
-class ItemCreate(ItemBase):
+class SubjectCreate(SubjectBase):
     pass
 
 
-class Item(ItemBase):
+class Subject(SubjectBase):
     id: int
-    owner_id: int
     
     class Config:
         orm_mode = True
 
 
+# CHANNEL CATEGORIES
+class GuildCategoryBase(BaseModel):
+    guild_id: str
+    category_id: str
+
+
+class GuildCategoryCreate(GuildCategoryBase):
+    pass
+
+
+class GuildCategory(GuildCategoryBase):
+    id: int
+    
+    class Config:
+        orm_mode = True
+
+
+# USERS
 class UserBase(BaseModel):
-    email: str
+    guild_id = str
+    username = str
+    email = str
+    first_name = str
+    last_name = str
 
 
 class UserCreate(UserBase):
-    password: str
+    password = str
 
 
 class User(UserBase):
     id: int
-    is_active: bool
-    items: List[Item] = []
     
     class Config:
         orm_mode = True

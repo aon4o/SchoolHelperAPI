@@ -1,6 +1,9 @@
+"""
+Docstring
+"""
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 import crud
@@ -13,58 +16,85 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
-@app.middleware("http")
-async def db_session_middleware(request: Request, call_next):
-    response = Response("Internal server error", status_code=500)
-    
+def get_db():
+    """
+    :return:
+    """
+    database = SessionLocal()
     try:
-        
-        request.state.db = SessionLocal()
-        
-        response = await call_next(request)
-    
+        yield database
     finally:
-        
-        request.state.db.close()
+        database.close()
+
+
+# SUBJECTS
+@app.post(
+    '/subjects/create',
+    response_model=schemas.Subject,
+    tags=['Subject'],
+    summary=''
+)
+def create_subject(subject: schemas.SubjectCreate, database: Session = Depends(get_db)):
+    """
+    Description
+    """
+    guild_category = crud.get_guild_category(database, subject.guild_id)
+    if not guild_category:
+        raise HTTPException(
+            status_code=400,
+            detail="Your Guild does not have a category for School Channels!"
+                   "Please create it with the command !create_channel_category"
+        )
     
-    return response
+    db_subject = crud.get_subject(database, subject.guild_id, subject.name)
+    if db_subject:
+        raise HTTPException(
+            status_code=400,
+            detail=f"A Subject with the name '{subject.name}' already exists!"
+        )
+    
+    return crud.create_subject(database, subject)
 
 
-# Dependency
-def get_db(request: Request):
-    return request.state.db
+@app.get(
+    '/subjects/{guild_id}',
+    response_model=List[schemas.Subject],
+    tags=['Subject'],
+    summary="Gets a list of all Subjects that are set to a particular "
+            "Guild",
+)
+def get_subjects(guild_id: int, database: Session = Depends(get_db)):
+    """
+    Description
+    """
+    subjects = crud.get_subjects(database, guild_id)
+    if subjects is None:
+        raise HTTPException(
+            status_code=404,
+            detail='There is no set Subjects for this Guild!'
+        )
+    
+    return subjects
 
 
-@app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
-
-
-@app.get("/users/", response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
-
-
-@app.get("/users/{user_id}", response_model=schemas.User)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
-def create_item_for_user(
-        user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-):
-    return crud.create_user_item(db=db, item=item, user_id=user_id)
-
-
-@app.get("/items/", response_model=List[schemas.Item])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
+# GUILD CATEGORY
+@app.post(
+    '/guild_categories/create',
+    response_model=schemas.GuildCategory,
+    tags=['Subject'],
+    summary=''
+)
+def create_guild_category(guild_category: schemas.GuildCategoryCreate,
+                          database: Session = Depends(get_db)):
+    """
+    Description
+    """
+    db_channel_category = crud.get_guild_category(database,
+                                                  guild_category.guild_id)
+    if db_channel_category:
+        raise HTTPException(
+            status_code=400,
+            detail="This Guild already has a Category for School Channels!"
+        )
+    
+    return crud.create_channel_category(database, guild_category)
