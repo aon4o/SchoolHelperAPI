@@ -26,10 +26,10 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 
 COOKIE_AUTHORIZATION_NAME = "Authorization"
-COOKIE_DOMAIN = "localhost"
+COOKIE_DOMAIN = "rocky-lake-54267.herokuapp.com"
 
-PROTOCOL = "http://"
-FULL_HOST_NAME = "localhost"
+PROTOCOL = "https://"
+FULL_HOST_NAME = "rocky-lake-54267.herokuapp.com"
 PORT_NUMBER = 8000
 
 CLIENT_ID = "505706258996-acsc6h5lndulqhmbk0hcj3i04p4dvsk3.apps.googleusercontent.com"
