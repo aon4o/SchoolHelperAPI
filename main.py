@@ -216,6 +216,7 @@ class OAuth2PasswordBearerCookie(OAuth2):
 oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="/token")
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
+
 def get_user_by_email(db, email: str):
     for username, value in db.items():
         if value.get("email") == email:
@@ -263,6 +264,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
 
 @app.get("/google_login_client", tags=["security"])
 def google_login_client():
