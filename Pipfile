@@ -10,6 +10,11 @@ uvicorn = "*"
 psycopg2-binary = "*"
 pylint = "*"
 django-environ = "*"
+pyjwt = "*"
+httplib2 = "*"
+google = "*"
+google-api-python-client = "*"
+oauth2client = "*"
 
 [dev-packages]
 
