@@ -30,7 +30,7 @@ COOKIE_DOMAIN = "rocky-lake-54267.herokuapp.com"
 
 PROTOCOL = "https://"
 FULL_HOST_NAME = "rocky-lake-54267.herokuapp.com"
-PORT_NUMBER = 8000
+PORT_NUMBER = 80
 
 CLIENT_ID = "505706258996-acsc6h5lndulqhmbk0hcj3i04p4dvsk3.apps.googleusercontent.com"
 CLIENT_SECRETS_JSON = "client_secret_505706258996-acsc6h5lndulqhmbk0hcj3i04p4dvsk3.apps.googleusercontent.com.json"

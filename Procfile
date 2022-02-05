@@ -1,1 +1,1 @@
-web: python -m uvicorn main:app --reload
+web: python -m uvicorn main:app --port 80 --reload
