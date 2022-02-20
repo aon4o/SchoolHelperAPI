@@ -11,6 +11,6 @@ environ.Env.read_env()
 engine = create_engine(
     env("SQLALCHEMY_DATABASE_URL"), connect_args={}
 )
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
 
 Base = declarative_base()

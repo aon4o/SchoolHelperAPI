@@ -1,25 +1,65 @@
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 
 import models
 import schemas
 
+password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 # CLASSES
-def get_subject(db: Session, guild_id: str, name: str):
-    return db.query(models.Subject) \
-        .filter(models.Subject.guild_id == guild_id,
-                models.Subject.name == name) \
-        .first()
+def get_class_by_name(db: Session, name: str):
+    return db.query(models.Class).filter(models.Class.name == name).first()
 
 
-def get_subjects(db: Session, guild_id: int):
+def get_all_classes(db: Session):
+    return db.query(models.Class).all()
+
+
+def create_class(db: Session, class_: schemas.ClassCreate):
+    db_class = models.Class(
+        name=class_.name,
+        key=password_context.hash(class_.name)
+    )
+    db.add(db_class)
+    db.commit()
+    db.refresh(db_class)
+    return db_class
+
+
+def edit_class(db: Session, class_: models.Class, new_class: schemas.ClassCreate):
+    class_.name = new_class.name
+    db.commit()
+    db.refresh(class_)
+    return class_
+
+
+def delete_class(db: Session, class_: models.Class):
+    db.delete(class_)
+    db.commit()
+
+
+# SUBJECTS
+def get_subject_by_name(db: Session, name: str):
     return db.query(models.Subject) \
-        .filter(models.Subject.guild_id == guild_id).all()
+        .filter(models.Subject.name == name).first()
+
+
+def get_subjects_by_guild_id_or_class_name(db: Session, guild_id_or_name: str):
+    by_guild_id = db.query(models.Class) \
+        .filter(models.Class.guild_id == guild_id_or_name).subjects.all()
+    if by_guild_id is None:
+        return db.query(models.Class) \
+            .filter(models.Class.name == guild_id_or_name).subjects.all()
+    return by_guild_id
+
+
+def get_all_subjects(db: Session):
+    return db.query(models.Subject).all()
 
 
 def create_subject(db: Session, subject: schemas.SubjectCreate):
     db_subject = models.Subject(
-        guild_id=subject.guild_id,
         name=subject.name
     )
     db.add(db_subject)
@@ -28,15 +68,30 @@ def create_subject(db: Session, subject: schemas.SubjectCreate):
     return db_subject
 
 
-# def edit_class(db: Session, class_: schemas.ClassCreate):
-#     db_class = models.Schedule(
-#         guild_id=class_.guild_id,
-#         name=class_.name
-#     )
-#     db.add(db_class)
-#     db.commit()
-#     db.refresh(db_class)
-#     return db_class
+def edit_subject(db: Session, subject: models.Subject, new_subject: schemas.SubjectCreate):
+    subject.name = new_subject.name
+    db.commit()
+    db.refresh(subject)
+    return subject
+
+
+def delete_subject(db: Session, subject: models.Subject):
+    db.delete(subject)
+    db.commit()
+
+
+# CLASSES SUBJECTS
+def add_subject_to_class(db: Session, class_: models.Class, subject: models.Subject):
+    class_.subjects.append(subject)
+    db.commit()
+    db.refresh(class_)
+    
+
+def remove_subject_from_class(db: Session, class_: models.Class, subject: models.Subject):
+    class_.subjects.remove(subject)
+    db.commit()
+    db.refresh(class_)
+
 
 # CHANNEL CATEGORIES
 def get_guild_category(db: Session, guild_id: str):

@@ -15,8 +15,12 @@ httplib2 = "*"
 google = "*"
 google-api-python-client = "*"
 oauth2client = "*"
+jinja2 = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.9"
+
+[packages.passlib]
+extras = [ "bcrypt",]
