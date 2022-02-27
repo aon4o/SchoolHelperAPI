@@ -4,8 +4,6 @@ from passlib.context import CryptContext
 import models
 import schemas
 
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 # CLASSES
 def get_class_by_name(db: Session, name: str):
@@ -19,7 +17,7 @@ def get_all_classes(db: Session):
 def create_class(db: Session, class_: schemas.ClassCreate):
     db_class = models.Class(
         name=class_.name,
-        key=password_context.hash(class_.name)
+        key=CryptContext(schemes=["bcrypt"]).hash(class_.name)
     )
     db.add(db_class)
     db.commit()
@@ -27,7 +25,8 @@ def create_class(db: Session, class_: schemas.ClassCreate):
     return db_class
 
 
-def edit_class(db: Session, class_: models.Class, new_class: schemas.ClassCreate):
+def edit_class(db: Session, class_: models.Class,
+               new_class: schemas.ClassCreate):
     class_.name = new_class.name
     db.commit()
     db.refresh(class_)
@@ -68,7 +67,8 @@ def create_subject(db: Session, subject: schemas.SubjectCreate):
     return db_subject
 
 
-def edit_subject(db: Session, subject: models.Subject, new_subject: schemas.SubjectCreate):
+def edit_subject(db: Session, subject: models.Subject,
+                 new_subject: schemas.SubjectCreate):
     subject.name = new_subject.name
     db.commit()
     db.refresh(subject)
@@ -81,19 +81,40 @@ def delete_subject(db: Session, subject: models.Subject):
 
 
 # CLASSES SUBJECTS
-def add_subject_to_class(db: Session, class_: models.Class, subject: models.Subject):
+def add_subject_to_class(db: Session, class_: models.Class,
+                         subject: models.Subject):
     class_.subjects.append(subject)
     db.commit()
     db.refresh(class_)
-    
 
-def remove_subject_from_class(db: Session, class_: models.Class, subject: models.Subject):
+
+def remove_subject_from_class(db: Session, class_: models.Class,
+                              subject: models.Subject):
     class_.subjects.remove(subject)
     db.commit()
     db.refresh(class_)
 
 
-# CHANNEL CATEGORIES
+# USERS
+def create_user(db: Session, user: schemas.UserCreate):
+    db_user = models.User(
+        email=user.email,
+        password=user.password,
+        first_name=user.first_name,
+        last_name=user.last_name,
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(models.User) \
+        .filter(models.User.email == email).first()
+
+
+# TODO CHANNEL CATEGORIES WIP
 def get_guild_category(db: Session, guild_id: str):
     return db.query(models.GuildCategory) \
         .filter(models.GuildCategory.guild_id == guild_id).first()

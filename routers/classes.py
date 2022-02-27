@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from typing import List
 
-import models
-from dependencies import get_db
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
 import crud
 import schemas
+from dependencies import get_db
 
 router = APIRouter(
     prefix='/classes',
@@ -32,7 +32,7 @@ def get_all_classes(database: Session = Depends(get_db)):
 
 @router.get(
     '/{name}',
-    response_model=schemas.Subject,
+    response_model=schemas.Class,
     summary='Get the details of a Class object from the DB.'
 )
 def get_class(name: str, database: Session = Depends(get_db)):

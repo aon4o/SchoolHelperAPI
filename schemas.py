@@ -16,7 +16,7 @@ class ClassCreate(ClassBase):
 class Class(ClassBase):
     id: int
     key: str
-
+    
     class Config:
         orm_mode = True
 
@@ -37,7 +37,7 @@ class Subject(SubjectBase):
         orm_mode = True
 
 
-# CHANNEL CATEGORIES
+# TODO CHANNEL CATEGORIES WIP
 class GuildCategoryBase(BaseModel):
     guild_id: str
     category_id: str
@@ -56,19 +56,33 @@ class GuildCategory(GuildCategoryBase):
 
 # USERS
 class UserBase(BaseModel):
-    guild_id = str
-    username = str
-    email = str
-    first_name = str
-    last_name = str
+    first_name: str
+    last_name: str
+    email: str
 
 
 class UserCreate(UserBase):
-    password = str
+    password: str
 
 
 class User(UserBase):
     id: int
-    
+    admin: Optional[bool]
+
     class Config:
         orm_mode = True
+
+
+# AUTH
+class Login(BaseModel):
+    email: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: Optional[str] = None

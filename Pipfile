@@ -10,17 +10,18 @@ uvicorn = "*"
 psycopg2-binary = "*"
 pylint = "*"
 django-environ = "*"
-pyjwt = "*"
+PyJWT = "*"
 httplib2 = "*"
-google = "*"
-google-api-python-client = "*"
 oauth2client = "*"
-jinja2 = "*"
+Jinja2 = "*"
+passlib = "*"
+cryptography = "*"
+openpyxl = "*"
+python-jose = "*"
+python-multipart = "*"
+email-validator = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.9"
-
-[packages.passlib]
-extras = [ "bcrypt",]

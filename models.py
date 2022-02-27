@@ -1,10 +1,6 @@
-import enum
-
-import sqlalchemy.orm
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, \
-    SmallInteger, Time, UniqueConstraint, BigInteger, Table, CheckConstraint
+    UniqueConstraint, Table
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
 
 from database import Base
 
@@ -86,16 +82,11 @@ class User(Base):
     __tablename__ = "user"
     
     id = Column(Integer, primary_key=True, index=True)
-    guild_id = Column(String(length=20), nullable=False)
-    username = Column(String(length=50), nullable=False)
-    email = Column(String(length=50), nullable=False)
-    password = Column(String(length=50), nullable=False)
+    email = Column(String(length=50), nullable=False, unique=True)
+    password = Column(String(length=60), nullable=False)
     first_name = Column(String(length=50), nullable=False)
     last_name = Column(String(length=50), nullable=False)
-    type = Column(
-        ENUM('student', 'teacher', 'admin', name='user_type_enum'),
-        nullable=False
-    )
+    admin = Column(Boolean, nullable=False, default=False)
     
     # class_subjects = relationship(
     #     "class_subject",
