@@ -86,8 +86,9 @@ class User(Base):
     password = Column(String(length=60), nullable=False)
     first_name = Column(String(length=50), nullable=False)
     last_name = Column(String(length=50), nullable=False)
+    verified = Column(Boolean, nullable=False, default=False)
     admin = Column(Boolean, nullable=False, default=False)
-    
+
     # class_subjects = relationship(
     #     "class_subject",
     #     back_populates="users",

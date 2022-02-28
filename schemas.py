@@ -67,7 +67,8 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    admin: Optional[bool]
+    verified: bool
+    admin: bool
 
     class Config:
         orm_mode = True
@@ -85,4 +86,4 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    email: Optional[str] = None

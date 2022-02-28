@@ -5,12 +5,12 @@ from sqlalchemy.orm import Session
 
 import crud
 import schemas
-from dependencies import get_db
+from dependencies import get_db, get_user_is_verified, get_user_is_admin
 
 router = APIRouter(
     prefix='/classes',
     tags=['Classes'],
-    dependencies=[Depends(get_db)]
+    dependencies=[Depends(get_db), Depends(get_user_is_verified)]
 )
 
 
@@ -49,7 +49,8 @@ def get_class(name: str, database: Session = Depends(get_db)):
 @router.post(
     '/create',
     response_model=schemas.Class,
-    summary='Creates a Class instance in the DB.'
+    summary='Creates a Class instance in the DB.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def create_class(class_: schemas.ClassCreate, db: Session = Depends(get_db)):
     if len(class_.name) < 2 or len(class_.name) > 10:
@@ -70,7 +71,8 @@ def create_class(class_: schemas.ClassCreate, db: Session = Depends(get_db)):
 @router.put(
     '/{name}/edit',
     response_model=schemas.Class,
-    summary='Edit the details of a Class object from the DB.'
+    summary='Edit the details of a Class object from the DB.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def edit_class(name: str, class_: schemas.ClassCreate,
                db: Session = Depends(get_db)):
@@ -92,7 +94,8 @@ def edit_class(name: str, class_: schemas.ClassCreate,
 @router.delete(
     '/{name}/delete',
     response_model=schemas.Class,
-    summary='Delete a Class instance from the DB.'
+    summary='Delete a Class instance from the DB.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def delete_class(name: str, database: Session = Depends(get_db)):
     db_class = crud.get_class_by_name(database, name)
@@ -127,7 +130,8 @@ def get_class_subjects(name: str, database: Session = Depends(get_db)):
 @router.post(
     '/{name}/subjects/add',
     response_model=List[schemas.Subject],
-    summary='Assigns a Subject to a Class.'
+    summary='Assigns a Subject to a Class.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def add_subject_to_class(name: str, subject: schemas.SubjectBase,
                          database: Session = Depends(get_db)):
@@ -155,7 +159,8 @@ def add_subject_to_class(name: str, subject: schemas.SubjectBase,
 @router.delete(
     '/{name}/subjects/remove',
     response_model=List[schemas.Subject],
-    summary='Removes a Subject from a Class.'
+    summary='Removes a Subject from a Class.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def remove_subject_from_class(name: str, subject: schemas.SubjectBase,
                               database: Session = Depends(get_db)):
