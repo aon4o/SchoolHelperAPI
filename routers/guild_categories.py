@@ -6,6 +6,8 @@ from dependencies import get_db
 import crud
 import schemas
 
+# TODO Maybe obsolete
+
 router = APIRouter(
     prefix='/guild_categories',
     tags=['WIP'],

@@ -114,6 +114,39 @@ def get_user_by_email(db: Session, email: str):
         .filter(models.User.email == email).first()
 
 
+def get_all_users(db: Session):
+    return db.query(models.User).all()
+
+
+def edit_user(db: Session, user: models.User, new_user: schemas.UserBase):
+    user.first_name = new_user.first_name
+    user.last_name = new_user.last_name
+    user.email = new_user.email
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def edit_user_scope(db: Session, user: models.User, scope: str):
+    if scope == 'admin':
+        user.verified = True
+        user.admin = True
+    elif scope == 'user':
+        user.verified = True
+        user.admin = False
+    else:
+        user.verified = False
+        user.admin = False
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def delete_user(db: Session, user: models.User):
+    db.delete(user)
+    db.commit()
+
+
 # TODO CHANNEL CATEGORIES WIP
 def get_guild_category(db: Session, guild_id: str):
     return db.query(models.GuildCategory) \

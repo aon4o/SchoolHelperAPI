@@ -19,16 +19,6 @@ class_subject_teacher = Table(
 )
 
 
-# Table for MANY-TO-MANY relation for Classes to Subjects
-# class ClassSubject(Base):
-#     __tablename__ = 'class_subject'
-#
-#     id = Column(Integer, primary_key=True, index=True)
-#     class_id = Column('class_id', ForeignKey('class.id'))
-#     subject_id = Column('subject_id', ForeignKey('subject.id'))
-#
-#     UniqueConstraint('class_id', 'subject_id', name='class_id_subject_id_uc')
-
 class_subject = Table(
     'class_subject', Base.metadata,
     Column('id', Integer, primary_key=True, index=True),

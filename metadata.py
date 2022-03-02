@@ -8,6 +8,11 @@ tags_metadata = [
         "description": "Paths related to **User Authentication**.",
     },
     {
+        "name": "Users",
+        "description": "Operations related to **Users**. "
+                       "Basic CRUD methods and more.",
+    },
+    {
         "name": "Classes",
         "description": "Operations related to **Classes**. "
                        "Basic CRUD methods and more.",

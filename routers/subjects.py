@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from dependencies import get_db
+from dependencies import get_db, get_user_is_verified, get_user_is_admin
 import crud
 import schemas
 
 router = APIRouter(
     prefix='/subjects',
     tags=['Subjects'],
-    dependencies=[Depends(get_db)]
+    dependencies=[Depends(get_db), Depends(get_user_is_verified)]
 )
 
 
@@ -55,7 +55,8 @@ def get_subjects(name: str, database: Session = Depends(get_db)):
 @router.post(
     '/create',
     response_model=schemas.Subject,
-    summary='Create a Subject instance in the DB.'
+    summary='Create a Subject instance in the DB.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def create_subject(subject: schemas.SubjectCreate,
                    database: Session = Depends(get_db)):
@@ -78,7 +79,8 @@ def create_subject(subject: schemas.SubjectCreate,
 @router.put(
     '/{name}/edit',
     response_model=schemas.Subject,
-    summary='Edit the details of a Subject object from the DB.'
+    summary='Edit the details of a Subject object from the DB.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def edit_subject(name: str, subject: schemas.SubjectCreate,
                  database: Session = Depends(get_db)):
@@ -105,7 +107,8 @@ def edit_subject(name: str, subject: schemas.SubjectCreate,
 @router.delete(
     '/{name}/delete',
     response_model=schemas.Subject,
-    summary='Delete a Subject instance from the DB.'
+    summary='Delete a Subject instance from the DB.',
+    dependencies=[Depends(get_user_is_admin)]
 )
 def delete_subject(name: str, database: Session = Depends(get_db)):
     db_subject = crud.get_subject_by_name(database, name)

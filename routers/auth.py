@@ -6,6 +6,7 @@ import environ
 from datetime import datetime, timedelta
 
 import crud
+import models
 import schemas
 from dependencies import get_db, get_current_user
 
@@ -33,16 +34,6 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-@router.get(
-    '/test',
-    response_model=object,
-    summary='Auth TEST (TO BE REMOVED)',
-    dependencies=[Depends(get_current_user)]
-)
-def read_root():
-    return {"data": "Hello World!"}
-
-
 @router.post(
     '/register',
     response_model=schemas.User,
@@ -66,7 +57,7 @@ def register(user: schemas.UserCreate, database: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Този Имейл вече е регистриран!'
         )
-
+    
     user.password = bcrypt.hash(user.password)
     db_user = crud.create_user(database, user)
     return db_user
@@ -92,3 +83,16 @@ def login(request: schemas.Login, database: Session = Depends(get_db)):
     
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get(
+    '/scope',
+    response_model=schemas.Scope,
+    summary='Returns the scope of the currently logged User.',
+)
+def scope(user: models.User = Depends(get_current_user)):
+    if user.admin:
+        return {"scope": 'admin'}
+    if user.verified:
+        return {"scope": 'user'}
+    return {"scope": ''}

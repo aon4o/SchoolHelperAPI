@@ -69,7 +69,7 @@ class User(UserBase):
     id: int
     verified: bool
     admin: bool
-
+    
     class Config:
         orm_mode = True
 
@@ -87,3 +87,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
+
+class Scope(BaseModel):
+    scope: Optional[str] = None

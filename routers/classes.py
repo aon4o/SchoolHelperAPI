@@ -87,6 +87,11 @@ def edit_class(name: str, class_: schemas.ClassCreate,
             status_code=400,
             detail=f"Клас със име '{class_.name}' вече съществува!"
         )
+    if len(class_.name) < 2 or len(class_.name) > 10:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Името на Клас трябва да бъде между 2 и 10 символа!"
+        )
     
     return crud.edit_class(db, db_class, class_)
 
