@@ -17,7 +17,7 @@ router = APIRouter(
 
 @router.get(
     '',
-    response_model=List[schemas.User],
+    response_model=List[schemas.UserWithClass],
     summary='Get the details of all User objects from the DB.',
     dependencies=[Depends(get_user_is_verified)],
 )
@@ -34,7 +34,7 @@ def get_all_users(database: Session = Depends(get_db)):
 
 @router.get(
     '/me',
-    response_model=schemas.User,
+    response_model=schemas.UserWithClass,
     summary='Get the details of the currently logged in User from the DB.'
 )
 def get_current_user(user: models.User = Depends(get_current_user)):
@@ -43,7 +43,6 @@ def get_current_user(user: models.User = Depends(get_current_user)):
 
 @router.put(
     '/me/edit',
-    response_model=schemas.User,
     summary='Edit the details of the currently logged in User.'
 )
 def edit_current_user(
@@ -63,19 +62,16 @@ def edit_current_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Невалиден Имейл адрес!'
         )
-    if crud.get_user_by_email(database, new_user.email):
+    if crud.get_user_by_email(database, new_user.email) and user.email != new_user.email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Този Имейл вече е регистриран!'
         )
-    
-    db_user = crud.edit_user(database, user, new_user)
-    return db_user
+    crud.edit_user(database, user, new_user)
 
 
 @router.delete(
     '/me/delete',
-    response_model=None,
     summary='Delete the currently logged in User from the DB.'
 )
 def get_current_user(
@@ -87,7 +83,7 @@ def get_current_user(
 
 @router.get(
     '/{email}',
-    response_model=schemas.User,
+    response_model=schemas.UserWithClass,
     summary='Get the details of a specific User by Email from the DB.',
     dependencies=[Depends(get_user_is_verified)],
 )
@@ -98,13 +94,11 @@ def get_user_by_email(email: str, database: Session = Depends(get_db)):
             status_code=404,
             detail='Няма Потребител с такъв Имейл!'
         )
-    
     return user
 
 
 @router.put(
     '/{email}/scope',
-    response_model=schemas.User,
     summary='Change the scope of a given User.',
     dependencies=[Depends(get_user_is_admin)],
 )
@@ -115,4 +109,4 @@ def edit_user_scope(email: str, scope: schemas.Scope, database: Session = Depend
             status_code=404,
             detail='Няма Потребител с такъв Имейл!'
         )
-    return crud.edit_user_scope(database, user, scope.scope)
+    crud.edit_user_scope(database, user, scope.scope)

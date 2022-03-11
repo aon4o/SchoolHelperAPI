@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 import models
 from metadata import tags_metadata
 from database import engine
-from routers import classes, subjects, guild_categories, auth, users
+from routers import classes, subjects, users, auth
 
 models.Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")

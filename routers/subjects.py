@@ -37,7 +37,7 @@ def get_subjects(database: Session = Depends(get_db)):
     response_model=schemas.Subject,
     summary="Gets a Subject object from the DB.",
 )
-def get_subjects(name: str, database: Session = Depends(get_db)):
+def get_subject(name: str, database: Session = Depends(get_db)):
     """
     Description
     """
@@ -54,7 +54,6 @@ def get_subjects(name: str, database: Session = Depends(get_db)):
 
 @router.post(
     '/create',
-    response_model=schemas.Subject,
     summary='Create a Subject instance in the DB.',
     dependencies=[Depends(get_user_is_admin)]
 )
@@ -72,13 +71,11 @@ def create_subject(subject: schemas.SubjectCreate,
             status_code=400,
             detail=f"Предмет с име '{subject.name}' вече съществува!"
         )
-    
-    return crud.create_subject(database, subject)
+    crud.create_subject(database, subject)
 
 
 @router.put(
     '/{name}/edit',
-    response_model=schemas.Subject,
     summary='Edit the details of a Subject object from the DB.',
     dependencies=[Depends(get_user_is_admin)]
 )
@@ -101,12 +98,11 @@ def edit_subject(name: str, subject: schemas.SubjectCreate,
             status_code=400,
             detail="Името на Предмет трябва да бъде между 3 и 50 символа!"
         )
-    return crud.edit_subject(database, db_subject, subject)
+    crud.edit_subject(database, db_subject, subject)
 
 
 @router.delete(
     '/{name}/delete',
-    response_model=schemas.Subject,
     summary='Delete a Subject instance from the DB.',
     dependencies=[Depends(get_user_is_admin)]
 )
@@ -117,7 +113,7 @@ def delete_subject(name: str, database: Session = Depends(get_db)):
             status_code=404,
             detail=f"Предмет с име '{name}' не съществува!"
         )
-    return crud.delete_subject(database, db_subject)
+    crud.delete_subject(database, db_subject)
 
 
 @router.get(

@@ -74,6 +74,10 @@ class User(UserBase):
         orm_mode = True
 
 
+class Email(BaseModel):
+    email: str
+
+
 # AUTH
 class Login(BaseModel):
     email: str
@@ -91,3 +95,26 @@ class TokenData(BaseModel):
 
 class Scope(BaseModel):
     scope: Optional[str] = None
+
+
+# SCHEMAS WITH RELATIONS
+class ClassWithUser(Class):
+    class_teacher: Optional[User] = None
+    
+    class Config:
+        orm_mode = True
+
+
+class UserWithClass(User):
+    class_: Optional[Class] = None
+    
+    class Config:
+        orm_mode = True
+
+
+class ClassSubjectsWithUser(BaseModel):
+    subject: Subject
+    teacher: Optional[User]
+    
+    class Config:
+        orm_mode = True

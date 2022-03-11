@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
@@ -22,7 +24,6 @@ def create_class(db: Session, class_: schemas.ClassCreate):
     db.add(db_class)
     db.commit()
     db.refresh(db_class)
-    return db_class
 
 
 def edit_class(db: Session, class_: models.Class,
@@ -30,18 +31,48 @@ def edit_class(db: Session, class_: models.Class,
     class_.name = new_class.name
     db.commit()
     db.refresh(class_)
-    return class_
 
 
 def delete_class(db: Session, class_: models.Class):
     db.delete(class_)
     db.commit()
+    
+    
+def set_class_subject_teacher(db: Session, class_subject: models.ClassSubject,
+                              user: Optional[models.User] = None):
+    class_subject.teacher = user
+    db.commit()
+    db.refresh(class_subject)
+
+    
+def set_class_teacher(db: Session, class_: models.Class, user: models.User):
+    class_.class_teacher = user
+    user.class_ = class_
+    db.commit()
+    db.refresh(class_)
+    db.refresh(user)
+    
+
+def remove_class_teacher(db: Session, class_: models.Class):
+    user = class_.class_teacher
+    if user is not None:
+        user.class_ = None
+        db.refresh(user)
+    class_.class_teacher = None
+    db.commit()
+    db.refresh(class_)
 
 
 # SUBJECTS
 def get_subject_by_name(db: Session, name: str):
     return db.query(models.Subject) \
         .filter(models.Subject.name == name).first()
+
+
+def get_class_subject_by_objects(db: Session, class_: models.Class, subject: models.Subject):
+    return db.query(models.ClassSubject) \
+        .filter(models.ClassSubject.subject == subject,
+                models.ClassSubject.class_ == class_).first()
 
 
 def get_subjects_by_guild_id_or_class_name(db: Session, guild_id_or_name: str):
@@ -64,7 +95,6 @@ def create_subject(db: Session, subject: schemas.SubjectCreate):
     db.add(db_subject)
     db.commit()
     db.refresh(db_subject)
-    return db_subject
 
 
 def edit_subject(db: Session, subject: models.Subject,
@@ -72,7 +102,6 @@ def edit_subject(db: Session, subject: models.Subject,
     subject.name = new_subject.name
     db.commit()
     db.refresh(subject)
-    return subject
 
 
 def delete_subject(db: Session, subject: models.Subject):
@@ -106,7 +135,6 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return db_user
 
 
 def get_user_by_email(db: Session, email: str):
@@ -124,7 +152,6 @@ def edit_user(db: Session, user: models.User, new_user: schemas.UserBase):
     user.email = new_user.email
     db.commit()
     db.refresh(user)
-    return user
 
 
 def edit_user_scope(db: Session, user: models.User, scope: str):
@@ -139,7 +166,6 @@ def edit_user_scope(db: Session, user: models.User, scope: str):
         user.admin = False
     db.commit()
     db.refresh(user)
-    return user
 
 
 def delete_user(db: Session, user: models.User):

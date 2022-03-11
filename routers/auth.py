@@ -36,7 +36,6 @@ def create_access_token(data: dict):
 
 @router.post(
     '/register',
-    response_model=schemas.User,
     summary='Path for User Registration'
 )
 def register(user: schemas.UserCreate, database: Session = Depends(get_db)):
@@ -59,8 +58,7 @@ def register(user: schemas.UserCreate, database: Session = Depends(get_db)):
         )
     
     user.password = bcrypt.hash(user.password)
-    db_user = crud.create_user(database, user)
-    return db_user
+    crud.create_user(database, user)
 
 
 @router.post(
