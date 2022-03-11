@@ -4,19 +4,6 @@ from sqlalchemy.orm import relationship, declarative_base
 Base = declarative_base()
 
 
-class ClassSubject(Base):
-    __tablename__ = "class_subject"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    class_id = Column(ForeignKey('class.id'))
-    subject_id = Column(ForeignKey('subject.id'))
-    user_id = Column(ForeignKey('user.id'))
-
-    class_ = relationship('Class', backref="class_subjects")
-    subject = relationship('Subject', backref="class_subjects")
-    teacher = relationship('User')
-
-
 class Class(Base):
     __tablename__ = "class"
     
@@ -25,7 +12,11 @@ class Class(Base):
     name = Column(String(length=10), nullable=False, unique=True)
     key = Column(String(length=60), nullable=False, unique=True)
     
-    class_teacher = relationship("User", back_populates="class_", uselist=False)
+    class_teacher = relationship(
+        "User",
+        back_populates="class_",
+        uselist=False
+    )
     
     subjects = relationship(
         "Subject",
@@ -45,6 +36,19 @@ class Subject(Base):
         secondary='class_subject',
         back_populates="subjects"
     )
+
+
+class ClassSubject(Base):
+    __tablename__ = "class_subject"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    class_id = Column(ForeignKey('class.id'))
+    subject_id = Column(ForeignKey('subject.id'))
+    user_id = Column(ForeignKey('user.id'))
+    
+    class_ = relationship('Class', backref="class_subjects")
+    subject = relationship('Subject', backref="class_subjects")
+    teacher = relationship('User')
 
 
 # TODO Maybe obsolete
