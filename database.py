@@ -8,9 +8,13 @@ env = environ.Env(
 )
 environ.Env.read_env()
 
-engine = create_engine(
-    env("SQLALCHEMY_DATABASE_URL"), connect_args={}
-)
+url = f'postgresql://{env("DB_USERNAME")}' \
+      f':{env("DB_PASSWORD")}' \
+      f'@{env("DB_HOST")}' \
+      f':{env("DB_PORT")}' \
+      f'/{env("DB_DATABASE")}'
+
+engine = create_engine(url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
 
 Base = declarative_base()

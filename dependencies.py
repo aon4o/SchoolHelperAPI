@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 
 import crud
 import models
-import schemas
 from database import SessionLocal
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
