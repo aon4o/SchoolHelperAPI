@@ -15,10 +15,13 @@ class ClassCreate(ClassBase):
 
 class Class(ClassBase):
     id: int
-    key: str
     
     class Config:
         orm_mode = True
+
+
+class Key(BaseModel):
+    key: str
 
 
 # SUBJECTS
