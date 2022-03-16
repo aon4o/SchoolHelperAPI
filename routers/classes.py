@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 import crud
-import models
 import schemas
 from dependencies import get_db, get_user_is_verified, get_user_is_admin
 
@@ -206,7 +205,8 @@ def get_class_subject(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Предмет с име '{subject_name}' не съществува!"
         )
-    db_class_subject = crud.get_class_subject_by_objects(database, db_class, db_subject)
+    db_class_subject = crud.get_class_subject_by_objects(database, db_class,
+                                                         db_subject)
     if db_class_subject is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -238,7 +238,8 @@ def set_class_subject_teacher(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Предмет с име '{subject_name}' не съществува!"
         )
-    db_class_subject = crud.get_class_subject_by_objects(database, db_class, db_subject)
+    db_class_subject = crud.get_class_subject_by_objects(database, db_class,
+                                                         db_subject)
     if db_class_subject is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -253,10 +254,12 @@ def set_class_subject_teacher(
     if not db_user.verified:
         raise HTTPException(
             status_code=400,
-            detail=f"Потребителят с имейл '{email.email}' не е потвърден! За да бъде Преподавател трябва първо Админ да потвърди акаунта му."
+            detail=f"Потребителят с имейл '{email.email}' не е потвърден! "
+                   f"За да бъде Преподавател трябва първо "
+                   f"Админ да потвърди акаунта му."
         )
     crud.set_class_subject_teacher(database, db_class_subject, db_user)
-    
+
 
 @router.delete(
     '/{class_name}/subjects/{subject_name}/remove_teacher',
@@ -280,7 +283,8 @@ def set_class_subject_teacher(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Предмет с име '{subject_name}' не съществува!"
         )
-    db_class_subject = crud.get_class_subject_by_objects(database, db_class, db_subject)
+    db_class_subject = crud.get_class_subject_by_objects(database, db_class,
+                                                         db_subject)
     if db_class_subject is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -292,6 +296,7 @@ def set_class_subject_teacher(
             detail=f"Предметът '{subject_name}' няма зададен учител!"
         )
     crud.set_class_subject_teacher(database, db_class_subject)
+
 
 @router.put(
     '/{name}/class_teacher/set',
@@ -339,3 +344,20 @@ def remove_subject_from_class(name: str, database: Session = Depends(get_db)):
             detail=f"Клас с име '{name}' не съществува!"
         )
     crud.remove_class_teacher(database, db_class)
+
+
+@router.get(
+    '/{name}/key',
+    response_model=schemas.Key,
+    summary='Get the Key of a Class for Discord Bot initialization.',
+    dependencies=[Depends(get_user_is_admin)]
+)
+def get_class_subjects(name: str, database: Session = Depends(get_db)):
+    class_ = crud.get_class_by_name(database, name)
+    if class_ is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Клас с име '{name}' не съществува!"
+        )
+    
+    return {'key': class_.key}
