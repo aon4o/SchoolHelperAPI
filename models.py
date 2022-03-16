@@ -23,6 +23,8 @@ class Class(Base):
         secondary='class_subject',
         back_populates="classes"
     )
+    
+    class_subjects = relationship('ClassSubject', viewonly=True)
 
 
 class Subject(Base):
@@ -37,6 +39,8 @@ class Subject(Base):
         back_populates="subjects"
     )
 
+    class_subjects = relationship('ClassSubject', viewonly=True)
+
 
 class ClassSubject(Base):
     __tablename__ = "class_subject"
@@ -46,8 +50,8 @@ class ClassSubject(Base):
     subject_id = Column(ForeignKey('subject.id'))
     user_id = Column(ForeignKey('user.id'))
     
-    class_ = relationship('Class', backref="class_subjects")
-    subject = relationship('Subject', backref="class_subjects")
+    class_ = relationship('Class', viewonly=True)
+    subject = relationship('Subject', viewonly=True)
     teacher = relationship('User')
 
 

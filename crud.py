@@ -75,15 +75,6 @@ def get_class_subject_by_objects(db: Session, class_: models.Class, subject: mod
                 models.ClassSubject.class_ == class_).first()
 
 
-def get_subjects_by_guild_id_or_class_name(db: Session, guild_id_or_name: str):
-    by_guild_id = db.query(models.Class) \
-        .filter(models.Class.guild_id == guild_id_or_name).subjects.all()
-    if by_guild_id is None:
-        return db.query(models.Class) \
-            .filter(models.Class.name == guild_id_or_name).subjects.all()
-    return by_guild_id
-
-
 def get_all_subjects(db: Session):
     return db.query(models.Subject).all()
 
@@ -174,18 +165,18 @@ def delete_user(db: Session, user: models.User):
 
 
 # TODO CHANNEL CATEGORIES WIP
-def get_guild_category(db: Session, guild_id: str):
-    return db.query(models.GuildCategory) \
-        .filter(models.GuildCategory.guild_id == guild_id).first()
-
-
-def create_channel_category(db: Session,
-                            guild_category: schemas.GuildCategoryCreate):
-    db_guild_category = models.GuildCategory(
-        guild_id=guild_category.guild_id,
-        category_id=guild_category.category_id
-    )
-    db.add(db_guild_category)
-    db.commit()
-    db.refresh(db_guild_category)
-    return db_guild_category
+# def get_guild_category(db: Session, guild_id: str):
+#     return db.query(models.GuildCategory) \
+#         .filter(models.GuildCategory.guild_id == guild_id).first()
+#
+#
+# def create_channel_category(db: Session,
+#                             guild_category: schemas.GuildCategoryCreate):
+#     db_guild_category = models.GuildCategory(
+#         guild_id=guild_category.guild_id,
+#         category_id=guild_category.category_id
+#     )
+#     db.add(db_guild_category)
+#     db.commit()
+#     db.refresh(db_guild_category)
+#     return db_guild_category
