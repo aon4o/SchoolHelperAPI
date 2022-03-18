@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import TIMESTAMP
 from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
@@ -53,6 +56,7 @@ class ClassSubject(Base):
     class_ = relationship('Class', viewonly=True)
     subject = relationship('Subject', viewonly=True)
     teacher = relationship('User')
+    messages = relationship('Message', back_populates='class_subject')
 
 
 # TODO Maybe obsolete
@@ -85,3 +89,19 @@ class User(Base):
     #     "class_subject",
     #     back_populates="users",
     # )
+
+
+class Message(Base):
+    __tablename__ = "message"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(50), nullable=False)
+    text = Column(String, nullable=False)
+    created_at = Column(
+        TIMESTAMP(timezone=False), nullable=False, default=datetime.now()
+    )
+    class_subject_id = Column(ForeignKey('class_subject.id'), nullable=False)
+    user_id = Column(ForeignKey('user.id'), nullable=False)
+    
+    class_subject = relationship('ClassSubject')
+    user = relationship('User')

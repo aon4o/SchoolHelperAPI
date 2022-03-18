@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
+import handlers
 from dependencies import get_db, get_user_is_verified, get_user_is_admin
 import crud
 import schemas
@@ -44,10 +45,7 @@ def get_subject(name: str, database: Session = Depends(get_db)):
     subject = crud \
         .get_subject_by_name(database, name)
     if subject is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Предмет с име '{name}' не съществува!"
-        )
+        handlers.handle_subject_is_none(name)
     
     return subject
 
@@ -84,10 +82,7 @@ def edit_subject(name: str, subject: schemas.SubjectCreate,
     db_subject = crud.get_subject_by_name(database, name)
     db_new_subject = crud.get_subject_by_name(database, subject.name)
     if db_subject is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Предмет с име '{name}' не съществува!"
-        )
+        handlers.handle_subject_is_none(subject.name)
     if db_new_subject is not None:
         raise HTTPException(
             status_code=400,
@@ -109,10 +104,7 @@ def edit_subject(name: str, subject: schemas.SubjectCreate,
 def delete_subject(name: str, database: Session = Depends(get_db)):
     db_subject = crud.get_subject_by_name(database, name)
     if db_subject is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Предмет с име '{name}' не съществува!"
-        )
+        handlers.handle_subject_is_none(name)
     crud.delete_subject(database, db_subject)
 
 
@@ -124,10 +116,7 @@ def delete_subject(name: str, database: Session = Depends(get_db)):
 def get_subject_classes(name: str, database: Session = Depends(get_db)):
     subject = crud.get_subject_by_name(database, name)
     if subject is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Предмет с име '{name}' не съществува!"
-        )
+        handlers.handle_subject_is_none(name)
     if subject.classes is None:
         raise HTTPException(
             status_code=404,

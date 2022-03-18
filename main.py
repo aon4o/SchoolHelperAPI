@@ -8,7 +8,8 @@ from fastapi.templating import Jinja2Templates
 import models
 from metadata import tags_metadata
 from database import engine
-from routers import classes, subjects, users, auth
+from routers import auth, users, classes, subjects, class_subjects, \
+    class_subject_messages
 
 models.Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")
@@ -44,7 +45,8 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(classes.router)
 app.include_router(subjects.router)
-# app.include_router(guild_categories.router)
+app.include_router(class_subjects.router)
+app.include_router(class_subject_messages.router)
 
 
 @app.get(

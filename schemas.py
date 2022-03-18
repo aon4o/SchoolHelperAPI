@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -41,20 +42,20 @@ class Subject(SubjectBase):
 
 
 # TODO CHANNEL CATEGORIES WIP
-class GuildCategoryBase(BaseModel):
-    guild_id: str
-    category_id: str
-
-
-class GuildCategoryCreate(GuildCategoryBase):
-    pass
-
-
-class GuildCategory(GuildCategoryBase):
-    id: int
-    
-    class Config:
-        orm_mode = True
+# class GuildCategoryBase(BaseModel):
+#     guild_id: str
+#     category_id: str
+#
+#
+# class GuildCategoryCreate(GuildCategoryBase):
+#     pass
+#
+#
+# class GuildCategory(GuildCategoryBase):
+#     id: int
+#
+#     class Config:
+#         orm_mode = True
 
 
 # USERS
@@ -98,6 +99,20 @@ class TokenData(BaseModel):
 
 class Scope(BaseModel):
     scope: Optional[str] = None
+    
+    
+# MESSAGES
+class MessageBase(BaseModel):
+    title: str
+    text: str
+
+
+class Message(MessageBase):
+    id: int
+    created_at: datetime.datetime
+    
+    class Config:
+        orm_mode = True
 
 
 # SCHEMAS WITH RELATIONS
@@ -121,3 +136,11 @@ class ClassSubjectsWithUser(BaseModel):
     
     class Config:
         orm_mode = True
+
+
+class MessageWithUser(Message):
+    user: User
+    
+    class Config:
+        orm_mode = True
+
