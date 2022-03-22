@@ -1,14 +1,24 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
+
+from typing import List
+import requests
+import json
+import environ
 
 import crud
 import handlers
 import schemas
 import models
-from dependencies import get_db, get_user_is_verified, get_user_is_admin
+from dependencies import get_db, get_user_is_verified
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+environ.Env.read_env()
+
+BOT_URL = env('BOT_URL')
 
 router = APIRouter(
     prefix='/classes/{class_name}/subjects/{subject_name}/messages',
@@ -103,6 +113,21 @@ def create_class_subject_message(
     crud.create_class_subject_message(
         database, message, db_class_subject, user
     )
+    
+    # REQUEST TO THE BOT
+    if db_class.guild_id is not None:
+        payload = {
+            'guild_id': db_class.guild_id,
+            'subject': subject_name,
+            'title': message.title,
+            'text': message.text,
+            'user': f'{user.first_name} {user.last_name}'
+        }
+        request = requests.post(
+            f'{BOT_URL}/messages/create',
+            data=json.dumps(payload),
+            headers={'Content-type': 'application/json'}
+        )
 
 
 @router.delete(

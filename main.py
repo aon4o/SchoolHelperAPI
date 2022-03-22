@@ -9,7 +9,7 @@ import models
 from metadata import tags_metadata
 from database import engine
 from routers import auth, users, classes, subjects, class_subjects, \
-    class_subject_messages
+    class_subject_messages, discord
 
 models.Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="templates")
@@ -47,6 +47,7 @@ app.include_router(classes.router)
 app.include_router(subjects.router)
 app.include_router(class_subjects.router)
 app.include_router(class_subject_messages.router)
+app.include_router(discord.router)
 
 
 @app.get(

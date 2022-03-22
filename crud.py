@@ -12,6 +12,15 @@ def get_class_by_name(db: Session, name: str):
     return db.query(models.Class).filter(models.Class.name == name).first()
 
 
+def get_class_by_key(db: Session, key: str):
+    return db.query(models.Class).filter(models.Class.key == key).first()
+
+
+def get_class_by_guild_id(db: Session, guild_id: str):
+    return db.query(models.Class).\
+        filter(models.Class.guild_id == guild_id).first()
+
+
 def get_all_classes(db: Session):
     return db.query(models.Class).all()
 
@@ -31,6 +40,12 @@ def edit_class(db: Session, class_: models.Class,
     class_.name = new_class.name
     db.commit()
     db.refresh(class_)
+    
+
+def set_class_guild_id(db: Session, class_: models.Class,
+                       guild_id: str = None):
+    class_.guild_id = guild_id
+    db.commit()
 
 
 def delete_class(db: Session, class_: models.Class):

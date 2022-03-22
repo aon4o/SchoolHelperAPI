@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -39,23 +39,6 @@ class Subject(SubjectBase):
     
     class Config:
         orm_mode = True
-
-
-# TODO CHANNEL CATEGORIES WIP
-# class GuildCategoryBase(BaseModel):
-#     guild_id: str
-#     category_id: str
-#
-#
-# class GuildCategoryCreate(GuildCategoryBase):
-#     pass
-#
-#
-# class GuildCategory(GuildCategoryBase):
-#     id: int
-#
-#     class Config:
-#         orm_mode = True
 
 
 # USERS
@@ -144,3 +127,12 @@ class MessageWithUser(Message):
     class Config:
         orm_mode = True
 
+
+# DISCORD SCHEMAS
+class DiscordInit(BaseModel):
+    key: str
+    guild_id: str
+
+
+class DiscordGuildId(BaseModel):
+    guild_id: str

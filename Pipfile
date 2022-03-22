@@ -17,6 +17,7 @@ cryptography = "*"
 python-jose = "*"
 python-multipart = "*"
 email-validator = "*"
+requests = "*"
 
 [dev-packages]
 

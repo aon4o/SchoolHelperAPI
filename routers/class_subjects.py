@@ -1,13 +1,23 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
+
+from typing import List
+import requests
+import environ
+import json
 
 import crud
 import handlers
 import schemas
 from dependencies import get_db, get_user_is_verified, get_user_is_admin
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+environ.Env.read_env()
+
+BOT_URL = env('BOT_URL')
 
 router = APIRouter(
     prefix='/classes/{class_name}/subjects',
@@ -52,6 +62,18 @@ def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
             detail=f"Клас '{class_name}' вече има предмет '{subject.name}'!"
         )
     crud.add_subject_to_class(database, db_class, db_subject)
+    
+    # REQUEST TO THE BOT
+    if db_class.guild_id is not None:
+        payload = {
+            'guild_id': db_class.guild_id,
+            'subject': subject.name,
+        }
+        request = requests.post(
+            f'{BOT_URL}/subjects',
+            data=json.dumps(payload),
+            headers={'Content-type': 'application/json'}
+        )
 
 
 @router.delete(
@@ -73,6 +95,19 @@ def remove_subject_from_class(class_name: str, subject: schemas.SubjectBase,
             detail=f"Клас '{class_name}' няма предмет '{subject.name}'!"
         )
     crud.remove_subject_from_class(database, db_class, db_subject)
+
+    # REQUEST TO THE BOT
+    if db_class.guild_id is not None:
+        print('asd')
+        payload = {
+            'guild_id': db_class.guild_id,
+            'subject': subject.name,
+        }
+        request = requests.delete(
+            f'{BOT_URL}/subjects',
+            data=json.dumps(payload),
+            headers={'Content-type': 'application/json'}
+        )
 
 
 @router.get(

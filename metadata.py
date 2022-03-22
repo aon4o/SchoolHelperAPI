@@ -34,13 +34,13 @@ tags_metadata = [
     {
         "name": "Class Subject Messages",
         "description": "Operations related to **Class Subject Messages**. "
-                       "WIP",
-        #     TODO
+                       "*Creating* and *deleting* a message in a "
+                       "specific Class Subject."
     },
     {
         "name": "Discord",
         "description": "Endpoints ONLY for the **Discord Bot**. "
-                       "WIP",
-        #     TODO
+                       "Used for bot *initialization*, *deactivation* "
+                       "and other Discord Bot commands.",
     },
 ]

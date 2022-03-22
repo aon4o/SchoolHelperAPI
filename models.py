@@ -56,18 +56,11 @@ class ClassSubject(Base):
     class_ = relationship('Class', viewonly=True)
     subject = relationship('Subject', viewonly=True)
     teacher = relationship('User')
-    messages = relationship('Message', back_populates='class_subject')
-
-
-# TODO Maybe obsolete
-# class GuildCategory(Base):
-#     __tablename__ = "guild_category"
-#
-#     id = Column(Integer, primary_key=True, index=True)
-#     guild_id = Column(String(length=20), nullable=False)
-#     category_id = Column(String(length=50), nullable=False)
-#
-#     UniqueConstraint('guild_id', 'name', name='guild_id_name_uc')
+    messages = relationship(
+        'Message',
+        back_populates='class_subject',
+        cascade="all, delete"
+    )
 
 
 class User(Base):
@@ -100,8 +93,8 @@ class Message(Base):
     created_at = Column(
         TIMESTAMP(timezone=False), nullable=False, default=datetime.now()
     )
-    class_subject_id = Column(ForeignKey('class_subject.id'), nullable=False)
+    class_subject_id = Column(ForeignKey('class_subject.id', ondelete="CASCADE"), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
     
-    class_subject = relationship('ClassSubject')
+    class_subject = relationship('ClassSubject', back_populates="messages")
     user = relationship('User')
