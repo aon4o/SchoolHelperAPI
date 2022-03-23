@@ -20,7 +20,7 @@ router = APIRouter(
     response_model=schemas.Class,
     summary="Route for checking the status of a School Discord Server.",
 )
-def status(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
+def get_status(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
     db_class = crud.get_class_by_guild_id(db, data.guild_id)
     if db_class is None:
         raise HTTPException(

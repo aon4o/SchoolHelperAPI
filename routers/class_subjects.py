@@ -49,7 +49,7 @@ def get_class_subjects(class_name: str, database: Session = Depends(get_db)):
     dependencies=[Depends(get_user_is_admin)]
 )
 async def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
-                         database: Session = Depends(get_db)):
+                               database: Session = Depends(get_db)):
     db_class = crud.get_class_by_name(database, class_name)
     if db_class is None:
         await handlers.handle_class_is_none(class_name)
@@ -70,7 +70,7 @@ async def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
                 'guild_id': db_class.guild_id,
                 'subject': subject.name,
             }
-            request = requests.post(
+            requests.post(
                 f'{BOT_URL}/subjects',
                 data=json.dumps(payload),
                 headers={'Content-type': 'application/json'}
@@ -84,8 +84,10 @@ async def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
     summary='Removes a Subject from a Class.',
     dependencies=[Depends(get_user_is_admin)]
 )
-async def remove_subject_from_class(class_name: str, subject: schemas.SubjectBase,
-                              database: Session = Depends(get_db)):
+async def remove_subject_from_class(
+        class_name: str, subject: schemas.SubjectBase,
+        database: Session = Depends(get_db)
+):
     db_class = crud.get_class_by_name(database, class_name)
     if db_class is None:
         await handlers.handle_class_is_none(class_name)
@@ -106,7 +108,7 @@ async def remove_subject_from_class(class_name: str, subject: schemas.SubjectBas
                 'guild_id': db_class.guild_id,
                 'subject': subject.name,
             }
-            request = requests.delete(
+            requests.delete(
                 f'{BOT_URL}/subjects',
                 data=json.dumps(payload),
                 headers={'Content-type': 'application/json'}

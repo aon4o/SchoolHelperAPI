@@ -1,13 +1,23 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
+
+from typing import List
+import requests
+import environ
+import json
 
 import crud
 import handlers
 import schemas
 from dependencies import get_db, get_user_is_verified, get_user_is_admin
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+environ.Env.read_env()
+
+BOT_URL = env('BOT_URL')
 
 router = APIRouter(
     prefix='/classes',
@@ -93,10 +103,22 @@ def edit_class(name: str, class_: schemas.ClassCreate,
     summary='Delete a Class instance from the DB.',
     dependencies=[Depends(get_user_is_admin)]
 )
-def delete_class(name: str, database: Session = Depends(get_db)):
+async def delete_class(name: str, database: Session = Depends(get_db)):
     db_class = crud.get_class_by_name(database, name)
     if db_class is None:
-        handlers.handle_class_is_none(name)
+        await handlers.handle_class_is_none(name)
+    
+    # REQUEST TO THE BOT
+    if db_class.guild_id is not None:
+        try:
+            payload = {'guild_id': db_class.guild_id}
+            requests.delete(
+                f'{BOT_URL}/classes',
+                data=json.dumps(payload),
+                headers={'Content-type': 'application/json'}
+            )
+        except:
+            pass
     crud.delete_class(database, db_class)
 
 
