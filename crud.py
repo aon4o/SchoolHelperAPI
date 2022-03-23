@@ -25,6 +25,12 @@ def get_all_classes(db: Session):
     return db.query(models.Class).all()
 
 
+def get_initialized_classes_count(db: Session):
+    return len(
+        db.query(models.Class).filter(models.Class.guild_id is not None).all()
+    )
+
+
 def create_class(db: Session, class_: schemas.ClassCreate):
     db_class = models.Class(
         name=class_.name,
@@ -84,7 +90,9 @@ def get_subject_by_name(db: Session, name: str):
         .filter(models.Subject.name == name).first()
 
 
-def get_class_subject_by_objects(db: Session, class_: models.Class, subject: models.Subject):
+def get_class_subject_by_objects(
+        db: Session, class_: models.Class, subject: models.Subject
+):
     return db.query(models.ClassSubject) \
         .filter(models.ClassSubject.subject == subject,
                 models.ClassSubject.class_ == class_).first()
@@ -179,26 +187,10 @@ def delete_user(db: Session, user: models.User):
     db.commit()
 
 
-# TODO CHANNEL CATEGORIES WIP
-# def get_guild_category(db: Session, guild_id: str):
-#     return db.query(models.GuildCategory) \
-#         .filter(models.GuildCategory.guild_id == guild_id).first()
-#
-#
-# def create_channel_category(db: Session,
-#                             guild_category: schemas.GuildCategoryCreate):
-#     db_guild_category = models.GuildCategory(
-#         guild_id=guild_category.guild_id,
-#         category_id=guild_category.category_id
-#     )
-#     db.add(db_guild_category)
-#     db.commit()
-#     db.refresh(db_guild_category)
-#     return db_guild_category
-
 # MESSAGES
-def get_message_by_id(db: Session, id: int):
-    return db.query(models.Message).filter(models.Message.id == id).first()
+def get_message_by_id(db: Session, message_id: int):
+    return db.query(models.Message)\
+        .filter(models.Message.id == message_id).first()
 
 
 def create_class_subject_message(

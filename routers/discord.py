@@ -20,7 +20,7 @@ router = APIRouter(
     response_model=schemas.Class,
     summary="Route for checking the status of a School Discord Server.",
 )
-def function(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
+def status(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
     db_class = crud.get_class_by_guild_id(db, data.guild_id)
     if db_class is None:
         raise HTTPException(
@@ -35,7 +35,7 @@ def function(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
     response_model=List[schemas.Subject],
     summary="Route for initializing a Discord server.",
 )
-def function(data: schemas.DiscordInit, db: Session = Depends(get_db)):
+def init(data: schemas.DiscordInit, db: Session = Depends(get_db)):
 
     if crud.get_class_by_guild_id(db, data.guild_id) is not None:
         raise HTTPException(
@@ -65,7 +65,7 @@ def function(data: schemas.DiscordInit, db: Session = Depends(get_db)):
     '/deactivate',
     summary="Route for deactivating previously initialized Discord server.",
 )
-def function(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
+def deactivate(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
     db_class = crud.get_class_by_guild_id(db, data.guild_id)
     if db_class is None:
         raise HTTPException(

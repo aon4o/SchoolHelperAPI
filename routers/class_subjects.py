@@ -48,14 +48,14 @@ def get_class_subjects(class_name: str, database: Session = Depends(get_db)):
     summary='Assigns a Subject to a Class.',
     dependencies=[Depends(get_user_is_admin)]
 )
-def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
+async def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
                          database: Session = Depends(get_db)):
     db_class = crud.get_class_by_name(database, class_name)
     if db_class is None:
-        handlers.handle_class_is_none(class_name)
+        await handlers.handle_class_is_none(class_name)
     db_subject = crud.get_subject_by_name(database, subject.name)
     if db_subject is None:
-        handlers.handle_subject_is_none(subject.name)
+        await handlers.handle_subject_is_none(subject.name)
     if db_subject in db_class.subjects:
         raise HTTPException(
             status_code=400,
@@ -65,15 +65,18 @@ def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
     
     # REQUEST TO THE BOT
     if db_class.guild_id is not None:
-        payload = {
-            'guild_id': db_class.guild_id,
-            'subject': subject.name,
-        }
-        request = requests.post(
-            f'{BOT_URL}/subjects',
-            data=json.dumps(payload),
-            headers={'Content-type': 'application/json'}
-        )
+        try:
+            payload = {
+                'guild_id': db_class.guild_id,
+                'subject': subject.name,
+            }
+            request = requests.post(
+                f'{BOT_URL}/subjects',
+                data=json.dumps(payload),
+                headers={'Content-type': 'application/json'}
+            )
+        except:
+            pass
 
 
 @router.delete(
@@ -81,33 +84,35 @@ def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
     summary='Removes a Subject from a Class.',
     dependencies=[Depends(get_user_is_admin)]
 )
-def remove_subject_from_class(class_name: str, subject: schemas.SubjectBase,
+async def remove_subject_from_class(class_name: str, subject: schemas.SubjectBase,
                               database: Session = Depends(get_db)):
     db_class = crud.get_class_by_name(database, class_name)
     if db_class is None:
-        handlers.handle_class_is_none(class_name)
+        await handlers.handle_class_is_none(class_name)
     db_subject = crud.get_subject_by_name(database, subject.name)
     if db_subject is None:
-        handlers.handle_subject_is_none(subject.name)
+        await handlers.handle_subject_is_none(subject.name)
     if db_subject not in db_class.subjects:
         raise HTTPException(
             status_code=400,
             detail=f"Клас '{class_name}' няма предмет '{subject.name}'!"
         )
     crud.remove_subject_from_class(database, db_class, db_subject)
-
+    
     # REQUEST TO THE BOT
     if db_class.guild_id is not None:
-        print('asd')
-        payload = {
-            'guild_id': db_class.guild_id,
-            'subject': subject.name,
-        }
-        request = requests.delete(
-            f'{BOT_URL}/subjects',
-            data=json.dumps(payload),
-            headers={'Content-type': 'application/json'}
-        )
+        try:
+            payload = {
+                'guild_id': db_class.guild_id,
+                'subject': subject.name,
+            }
+            request = requests.delete(
+                f'{BOT_URL}/subjects',
+                data=json.dumps(payload),
+                headers={'Content-type': 'application/json'}
+            )
+        except:
+            pass
 
 
 @router.get(
@@ -205,4 +210,3 @@ def set_class_subject_teacher(
             detail=f"Предметът '{subject_name}' няма зададен учител!"
         )
     crud.set_class_subject_teacher(database, db_class_subject)
-    

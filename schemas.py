@@ -136,3 +136,9 @@ class DiscordInit(BaseModel):
 
 class DiscordGuildId(BaseModel):
     guild_id: str
+
+
+# STATUS
+class Status(BaseModel):
+    bot: bool
+    servers: int

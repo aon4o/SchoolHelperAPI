@@ -69,7 +69,7 @@ def get_class_subject_messages(
     '/create',
     summary="Create a new Message for a Class' Subject.",
 )
-def create_class_subject_message(
+async def create_class_subject_message(
         class_name: str,
         subject_name: str,
         message: schemas.MessageBase,
@@ -78,11 +78,11 @@ def create_class_subject_message(
 ):
     db_class = crud.get_class_by_name(database, class_name)
     if db_class is None:
-        handlers.handle_class_is_none(class_name)
+        await handlers.handle_class_is_none(class_name)
     
     db_subject = crud.get_subject_by_name(database, subject_name)
     if db_subject is None:
-        handlers.handle_subject_is_none(subject_name)
+        await handlers.handle_subject_is_none(subject_name)
     
     db_class_subject = crud.get_class_subject_by_objects(
         database, db_class, db_subject
@@ -116,18 +116,21 @@ def create_class_subject_message(
     
     # REQUEST TO THE BOT
     if db_class.guild_id is not None:
-        payload = {
-            'guild_id': db_class.guild_id,
-            'subject': subject_name,
-            'title': message.title,
-            'text': message.text,
-            'user': f'{user.first_name} {user.last_name}'
-        }
-        request = requests.post(
-            f'{BOT_URL}/messages/create',
-            data=json.dumps(payload),
-            headers={'Content-type': 'application/json'}
-        )
+        try:
+            payload = {
+                'guild_id': db_class.guild_id,
+                'subject': subject_name,
+                'title': message.title,
+                'text': message.text,
+                'user': f'{user.first_name} {user.last_name}'
+            }
+            request = requests.post(
+                f'{BOT_URL}/messages',
+                data=json.dumps(payload),
+                headers={'Content-type': 'application/json'}
+            )
+        except:
+            pass
 
 
 @router.delete(

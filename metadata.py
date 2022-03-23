@@ -43,4 +43,9 @@ tags_metadata = [
                        "Used for bot *initialization*, *deactivation* "
                        "and other Discord Bot commands.",
     },
+    {
+        "name": "Status",
+        "description": "Single endpoint for getting the *Status* "
+                       "of the **Discord Bot**.",
+    },
 ]
