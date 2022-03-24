@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -108,6 +108,13 @@ class ClassWithUser(Class):
 
 class UserWithClass(User):
     class_: Optional[Class] = None
+    
+    class Config:
+        orm_mode = True
+
+
+class UserWithClasses(User):
+    classes: List[Class] = None
     
     class Config:
         orm_mode = True

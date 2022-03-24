@@ -4,9 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 import crud
+import handlers
 import schemas
 import models
-from dependencies import get_db, get_current_user, get_user_is_verified, get_user_is_admin
+from dependencies import get_db, get_current_user, get_user_is_verified, \
+    get_user_is_admin
 
 router = APIRouter(
     prefix='/users',
@@ -62,7 +64,8 @@ def edit_current_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Невалиден Имейл адрес!'
         )
-    if crud.get_user_by_email(database, new_user.email) and user.email != new_user.email:
+    if crud.get_user_by_email(database,
+                              new_user.email) and user.email != new_user.email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Този Имейл вече е регистриран!'
@@ -90,10 +93,7 @@ def get_current_user(
 def get_user_by_email(email: str, database: Session = Depends(get_db)):
     user = crud.get_user_by_email(database, email)
     if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail='Няма Потребител с такъв Имейл!'
-        )
+        handlers.handle_user_is_none(email)
     return user
 
 
@@ -102,11 +102,22 @@ def get_user_by_email(email: str, database: Session = Depends(get_db)):
     summary='Change the scope of a given User.',
     dependencies=[Depends(get_user_is_admin)],
 )
-def edit_user_scope(email: str, scope: schemas.Scope, database: Session = Depends(get_db)):
+def edit_user_scope(email: str, scope: schemas.Scope,
+                    database: Session = Depends(get_db)):
     user = crud.get_user_by_email(database, email)
     if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail='Няма Потребител с такъв Имейл!'
-        )
+        handlers.handle_user_is_none(email)
     crud.edit_user_scope(database, user, scope.scope)
+
+
+@router.get(
+    '/{email}/classes',
+    summary='Get the Classes that the current Teacher teaches.',
+    response_model=schemas.UserWithClasses,
+    dependencies=[Depends(get_user_is_verified)],
+)
+def edit_user_scope(email: str, database: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(database, email)
+    if db_user is None:
+        handlers.handle_user_is_none(email)
+    return db_user

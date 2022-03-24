@@ -78,10 +78,11 @@ class User(Base):
     class_ = relationship("Class", back_populates="class_teacher",
                           uselist=False)
 
-    # class_subjects = relationship(
-    #     "class_subject",
-    #     back_populates="users",
-    # )
+    classes = relationship(
+        "Class",
+        secondary='class_subject',
+        viewonly=True
+    )
 
 
 class Message(Base):
