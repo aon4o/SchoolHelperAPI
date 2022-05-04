@@ -20,9 +20,6 @@ router = APIRouter(
     summary="Gets a list of all Subjects",
 )
 def get_subjects(database: Session = Depends(get_db)):
-    """
-    Description
-    """
     subjects = crud.get_all_subjects(database)
     if subjects is None:
         raise HTTPException(
@@ -39,11 +36,7 @@ def get_subjects(database: Session = Depends(get_db)):
     summary="Gets a Subject object from the DB.",
 )
 def get_subject(name: str, database: Session = Depends(get_db)):
-    """
-    Description
-    """
-    subject = crud \
-        .get_subject_by_name(database, name)
+    subject = crud.get_subject_by_name(database, name)
     if subject is None:
         handlers.handle_subject_is_none(name)
     

@@ -17,7 +17,7 @@ def get_class_by_key(db: Session, key: str):
 
 
 def get_class_by_guild_id(db: Session, guild_id: str):
-    return db.query(models.Class).\
+    return db.query(models.Class). \
         filter(models.Class.guild_id == guild_id).first()
 
 
@@ -41,15 +41,20 @@ def create_class(db: Session, class_: schemas.ClassCreate):
     db.refresh(db_class)
 
 
-def edit_class(db: Session, class_: models.Class,
-               new_class: schemas.ClassCreate):
+def edit_class(
+        db: Session,
+        class_: models.Class,
+        new_class: schemas.ClassCreate
+):
     class_.name = new_class.name
     db.commit()
     db.refresh(class_)
-    
 
-def set_class_guild_id(db: Session, class_: models.Class,
-                       guild_id: str = None):
+
+def set_class_guild_id(
+        db: Session, class_: models.Class,
+        guild_id: str = None
+):
     class_.guild_id = guild_id
     db.commit()
 
@@ -57,22 +62,24 @@ def set_class_guild_id(db: Session, class_: models.Class,
 def delete_class(db: Session, class_: models.Class):
     db.delete(class_)
     db.commit()
-    
-    
-def set_class_subject_teacher(db: Session, class_subject: models.ClassSubject,
-                              user: Optional[models.User] = None):
+
+
+def set_class_subject_teacher(
+        db: Session, class_subject: models.ClassSubject,
+        user: Optional[models.User] = None
+):
     class_subject.teacher = user
     db.commit()
     db.refresh(class_subject)
 
-    
+
 def set_class_teacher(db: Session, class_: models.Class, user: models.User):
     class_.class_teacher = user
     user.class_ = class_
     db.commit()
     db.refresh(class_)
     db.refresh(user)
-    
+
 
 def remove_class_teacher(db: Session, class_: models.Class):
     user = class_.class_teacher
@@ -111,8 +118,10 @@ def create_subject(db: Session, subject: schemas.SubjectCreate):
     db.refresh(db_subject)
 
 
-def edit_subject(db: Session, subject: models.Subject,
-                 new_subject: schemas.SubjectCreate):
+def edit_subject(
+        db: Session, subject: models.Subject,
+        new_subject: schemas.SubjectCreate
+):
     subject.name = new_subject.name
     db.commit()
     db.refresh(subject)
@@ -124,15 +133,19 @@ def delete_subject(db: Session, subject: models.Subject):
 
 
 # CLASSES SUBJECTS
-def add_subject_to_class(db: Session, class_: models.Class,
-                         subject: models.Subject):
+def add_subject_to_class(
+        db: Session, class_: models.Class,
+        subject: models.Subject
+):
     class_.subjects.append(subject)
     db.commit()
     db.refresh(class_)
 
 
-def remove_subject_from_class(db: Session, class_: models.Class,
-                              subject: models.Subject):
+def remove_subject_from_class(
+        db: Session, class_: models.Class,
+        subject: models.Subject
+):
     class_.subjects.remove(subject)
     db.commit()
     db.refresh(class_)
@@ -189,7 +202,7 @@ def delete_user(db: Session, user: models.User):
 
 # MESSAGES
 def get_message_by_id(db: Session, message_id: int):
-    return db.query(models.Message)\
+    return db.query(models.Message) \
         .filter(models.Message.id == message_id).first()
 
 

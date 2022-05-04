@@ -1,6 +1,3 @@
-"""
-Docstring
-"""
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
@@ -23,10 +20,6 @@ app = FastAPI(
         "url": "https://www.linkedin.com/in/alex-naida/",
         "email": "a.o.naidenov@gmail.com",
     },
-    # license_info={
-    #     "name": "Apache 2.0",
-    #     "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
-    # },
     openapi_tags=tags_metadata
 )
 
@@ -57,7 +50,4 @@ app.include_router(status.router)
     summary="Homepage",
 )
 def index(request: Request):
-    """
-    Description
-    """
     return templates.TemplateResponse('index.html', {'request': request})

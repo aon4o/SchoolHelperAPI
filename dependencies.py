@@ -61,5 +61,6 @@ def get_user_is_admin(user: models.User = Depends(get_current_user)):
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail='За да извършите това действие трябва да бъдете Админ! Ако смятате това за грешка, свържете се с такъв.'
+            detail='За да извършите това действие трябва да бъдете Админ!'
+                   'Ако смятате това за грешка, свържете се с такъв.'
         )
