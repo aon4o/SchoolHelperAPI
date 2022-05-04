@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import environ
 import requests
 
-import crud
+from crud import classes_crud
 import schemas
 from dependencies import get_db, get_current_user
 
@@ -28,7 +28,7 @@ router = APIRouter(
     summary="Route for checking the status of the Discord Bot.",
 )
 def status(db: Session = Depends(get_db)):
-    initialized_classes = crud.get_initialized_classes_count(db)
+    initialized_classes = classes_crud.get_initialized_classes_count(db)
     bot_online = False
     
     # REQUEST TO THE BOT

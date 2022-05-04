@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-import crud
+from crud import classes_crud
 import schemas
 from dependencies import get_db
 
@@ -21,7 +21,7 @@ router = APIRouter(
     summary="Route for checking the status of a School Discord Server.",
 )
 def get_status(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
-    db_class = crud.get_class_by_guild_id(db, data.guild_id)
+    db_class = classes_crud.get_class_by_guild_id(db, data.guild_id)
     if db_class is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -37,13 +37,13 @@ def get_status(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
 )
 def init(data: schemas.DiscordInit, db: Session = Depends(get_db)):
 
-    if crud.get_class_by_guild_id(db, data.guild_id) is not None:
+    if classes_crud.get_class_by_guild_id(db, data.guild_id) is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Този Discord сървър вече е инициализиран!"
         )
 
-    db_class = crud.get_class_by_key(db, data.key)
+    db_class = classes_crud.get_class_by_key(db, data.key)
     if db_class is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -56,7 +56,7 @@ def init(data: schemas.DiscordInit, db: Session = Depends(get_db)):
                 detail=f"Клас с ключ '{data.key}' вече е инициализиран!"
             )
 
-    crud.set_class_guild_id(db, db_class, data.guild_id)
+    classes_crud.set_class_guild_id(db, db_class, data.guild_id)
     
     return db_class.subjects
 
@@ -66,11 +66,11 @@ def init(data: schemas.DiscordInit, db: Session = Depends(get_db)):
     summary="Route for deactivating previously initialized Discord server.",
 )
 def deactivate(data: schemas.DiscordGuildId, db: Session = Depends(get_db)):
-    db_class = crud.get_class_by_guild_id(db, data.guild_id)
+    db_class = classes_crud.get_class_by_guild_id(db, data.guild_id)
     if db_class is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Класът не е бил инициализиран!"
         )
     
-    crud.set_class_guild_id(db, db_class)
+    classes_crud.set_class_guild_id(db, db_class)

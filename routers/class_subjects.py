@@ -7,7 +7,7 @@ import requests
 import environ
 import json
 
-import crud
+from crud import classes_crud, class_subjects_crud, subjects_crud, users_crud
 import handlers
 import schemas
 from dependencies import get_db, get_user_is_verified, get_user_is_admin
@@ -32,7 +32,7 @@ router = APIRouter(
     summary='Get a list of the Subjects that are assigned to a Class.'
 )
 def get_class_subjects(class_name: str, database: Session = Depends(get_db)):
-    class_ = crud.get_class_by_name(database, class_name)
+    class_ = classes_crud.get_class_by_name(database, class_name)
     if class_ is None:
         handlers.handle_class_is_none(class_name)
     if class_.class_subjects is None:
@@ -50,10 +50,10 @@ def get_class_subjects(class_name: str, database: Session = Depends(get_db)):
 )
 async def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
                                database: Session = Depends(get_db)):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         await handlers.handle_class_is_none(class_name)
-    db_subject = crud.get_subject_by_name(database, subject.name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject.name)
     if db_subject is None:
         await handlers.handle_subject_is_none(subject.name)
     if db_subject in db_class.subjects:
@@ -61,7 +61,7 @@ async def add_subject_to_class(class_name: str, subject: schemas.SubjectBase,
             status_code=400,
             detail=f"Клас '{class_name}' вече има предмет '{subject.name}'!"
         )
-    crud.add_subject_to_class(database, db_class, db_subject)
+    class_subjects_crud.add_subject_to_class(database, db_class, db_subject)
     
     # REQUEST TO THE BOT
     if db_class.guild_id is not None:
@@ -88,10 +88,10 @@ async def remove_subject_from_class(
         class_name: str, subject: schemas.SubjectBase,
         database: Session = Depends(get_db)
 ):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         await handlers.handle_class_is_none(class_name)
-    db_subject = crud.get_subject_by_name(database, subject.name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject.name)
     if db_subject is None:
         await handlers.handle_subject_is_none(subject.name)
     if db_subject not in db_class.subjects:
@@ -99,7 +99,8 @@ async def remove_subject_from_class(
             status_code=400,
             detail=f"Клас '{class_name}' няма предмет '{subject.name}'!"
         )
-    crud.remove_subject_from_class(database, db_class, db_subject)
+    class_subjects_crud\
+        .remove_subject_from_class(database, db_class, db_subject)
     
     # REQUEST TO THE BOT
     if db_class.guild_id is not None:
@@ -127,14 +128,14 @@ def get_class_subject(
         subject_name: str,
         database: Session = Depends(get_db)
 ):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         handlers.handle_class_is_none(class_name)
-    db_subject = crud.get_subject_by_name(database, subject_name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject_name)
     if db_subject is None:
         handlers.handle_subject_is_none(subject_name)
-    db_class_subject = crud.get_class_subject_by_objects(database, db_class,
-                                                         db_subject)
+    db_class_subject = subjects_crud\
+        .get_class_subject_by_objects(database, db_class, db_subject)
     if db_class_subject is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -154,20 +155,20 @@ def set_class_subject_teacher(
         email: schemas.Email,
         database: Session = Depends(get_db)
 ):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         handlers.handle_class_is_none(class_name)
-    db_subject = crud.get_subject_by_name(database, subject_name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject_name)
     if db_subject is None:
         handlers.handle_subject_is_none(subject_name)
-    db_class_subject = crud.get_class_subject_by_objects(database, db_class,
-                                                         db_subject)
+    db_class_subject = subjects_crud\
+        .get_class_subject_by_objects(database, db_class, db_subject)
     if db_class_subject is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Класът няма предмет с име '{subject_name}'!"
         )
-    db_user = crud.get_user_by_email(database, email.email)
+    db_user = users_crud.get_user_by_email(database, email.email)
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -180,7 +181,7 @@ def set_class_subject_teacher(
                    f"За да бъде Преподавател трябва първо "
                    f"Админ да потвърди акаунта му."
         )
-    crud.set_class_subject_teacher(database, db_class_subject, db_user)
+    classes_crud.set_class_subject_teacher(database, db_class_subject, db_user)
 
 
 @router.delete(
@@ -193,14 +194,14 @@ def set_class_subject_teacher(
         subject_name: str,
         database: Session = Depends(get_db)
 ):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         handlers.handle_class_is_none(class_name)
-    db_subject = crud.get_subject_by_name(database, subject_name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject_name)
     if db_subject is None:
         handlers.handle_subject_is_none(subject_name)
-    db_class_subject = crud.get_class_subject_by_objects(database, db_class,
-                                                         db_subject)
+    db_class_subject = subjects_crud\
+        .get_class_subject_by_objects(database, db_class, db_subject)
     if db_class_subject is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -211,4 +212,4 @@ def set_class_subject_teacher(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Предметът '{subject_name}' няма зададен учител!"
         )
-    crud.set_class_subject_teacher(database, db_class_subject)
+    classes_crud.set_class_subject_teacher(database, db_class_subject)

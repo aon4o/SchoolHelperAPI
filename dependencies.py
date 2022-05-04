@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-import crud
+from crud import users_crud
 import models
 from database import SessionLocal
 from fastapi import Depends, HTTPException, status
@@ -36,7 +36,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        user = crud.get_user_by_email(database, email)
+        user = users_crud.get_user_by_email(database, email)
         if user is None:
             raise credentials_exception
         return user

@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-import crud
+from crud import users_crud
 import handlers
 import schemas
 import models
@@ -24,7 +24,7 @@ router = APIRouter(
     dependencies=[Depends(get_user_is_verified)],
 )
 def get_all_users(database: Session = Depends(get_db)):
-    users = crud.get_all_users(database)
+    users = users_crud.get_all_users(database)
     if users is None:
         raise HTTPException(
             status_code=404,
@@ -64,13 +64,13 @@ def edit_current_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Невалиден Имейл адрес!'
         )
-    if crud.get_user_by_email(database,
-                              new_user.email) and user.email != new_user.email:
+    if users_crud.get_user_by_email(database, new_user.email)\
+            and user.email != new_user.email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Този Имейл вече е регистриран!'
         )
-    crud.edit_user(database, user, new_user)
+    users_crud.edit_user(database, user, new_user)
 
 
 @router.delete(
@@ -81,7 +81,7 @@ def get_current_user(
         user: models.User = Depends(get_current_user),
         database: Session = Depends(get_db)
 ):
-    crud.delete_user(database, user)
+    users_crud.delete_user(database, user)
 
 
 @router.get(
@@ -91,7 +91,7 @@ def get_current_user(
     dependencies=[Depends(get_user_is_verified)],
 )
 def get_user_by_email(email: str, database: Session = Depends(get_db)):
-    user = crud.get_user_by_email(database, email)
+    user = users_crud.get_user_by_email(database, email)
     if user is None:
         handlers.handle_user_is_none(email)
     return user
@@ -104,10 +104,10 @@ def get_user_by_email(email: str, database: Session = Depends(get_db)):
 )
 def edit_user_scope(email: str, scope: schemas.Scope,
                     database: Session = Depends(get_db)):
-    user = crud.get_user_by_email(database, email)
+    user = users_crud.get_user_by_email(database, email)
     if user is None:
         handlers.handle_user_is_none(email)
-    crud.edit_user_scope(database, user, scope.scope)
+    users_crud.edit_user_scope(database, user, scope.scope)
 
 
 @router.get(
@@ -117,7 +117,7 @@ def edit_user_scope(email: str, scope: schemas.Scope,
     dependencies=[Depends(get_user_is_verified)],
 )
 def edit_user_scope(email: str, database: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(database, email)
+    db_user = users_crud.get_user_by_email(database, email)
     if db_user is None:
         handlers.handle_user_is_none(email)
     return db_user

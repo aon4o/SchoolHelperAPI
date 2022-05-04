@@ -7,7 +7,7 @@ import requests
 import json
 import environ
 
-import crud
+from crud import classes_crud, subjects_crud, messages_crud
 import handlers
 import schemas
 import models
@@ -38,15 +38,15 @@ def get_class_subject_messages(
         database: Session = Depends(get_db),
         user: models.User = Depends(get_user_is_verified)
 ):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         handlers.handle_class_is_none(class_name)
         
-    db_subject = crud.get_subject_by_name(database, subject_name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject_name)
     if db_subject is None:
         handlers.handle_subject_is_none(subject_name)
         
-    db_class_subject = crud.get_class_subject_by_objects(
+    db_class_subject = subjects_crud.get_class_subject_by_objects(
         database, db_class, db_subject
     )
     if db_class_subject is None:
@@ -76,15 +76,15 @@ async def create_class_subject_message(
         database: Session = Depends(get_db),
         user: models.User = Depends(get_user_is_verified)
 ):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         await handlers.handle_class_is_none(class_name)
     
-    db_subject = crud.get_subject_by_name(database, subject_name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject_name)
     if db_subject is None:
         await handlers.handle_subject_is_none(subject_name)
     
-    db_class_subject = crud.get_class_subject_by_objects(
+    db_class_subject = subjects_crud.get_class_subject_by_objects(
         database, db_class, db_subject
     )
     if db_class_subject is None:
@@ -110,7 +110,7 @@ async def create_class_subject_message(
             detail="Съобщението е прекалено късо!"
         )
     
-    crud.create_class_subject_message(
+    messages_crud.create_class_subject_message(
         database, message, db_class_subject, user
     )
     
@@ -144,15 +144,15 @@ def delete_class_subject_message(
         database: Session = Depends(get_db),
         user: models.User = Depends(get_user_is_verified)
 ):
-    db_class = crud.get_class_by_name(database, class_name)
+    db_class = classes_crud.get_class_by_name(database, class_name)
     if db_class is None:
         handlers.handle_class_is_none(class_name)
     
-    db_subject = crud.get_subject_by_name(database, subject_name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject_name)
     if db_subject is None:
         handlers.handle_subject_is_none(subject_name)
     
-    db_class_subject = crud.get_class_subject_by_objects(
+    db_class_subject = subjects_crud.get_class_subject_by_objects(
         database, db_class, db_subject
     )
     if db_class_subject is None:
@@ -162,7 +162,7 @@ def delete_class_subject_message(
                    f"не е зададен на класа {class_name}!"
         )
     
-    db_message = crud.get_message_by_id(database, message_id)
+    db_message = messages_crud.get_message_by_id(database, message_id)
     if db_message is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -175,4 +175,4 @@ def delete_class_subject_message(
                    "трябва Вие да сте го създали или да сте Админ!"
         )
     
-    crud.delete_class_subject_message(database, db_message)
+    messages_crud.delete_class_subject_message(database, db_message)

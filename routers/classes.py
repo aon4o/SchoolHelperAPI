@@ -7,7 +7,7 @@ import requests
 import environ
 import json
 
-import crud
+from crud import classes_crud, users_crud
 import handlers
 import schemas
 from dependencies import get_db, get_user_is_verified, get_user_is_admin
@@ -32,7 +32,7 @@ router = APIRouter(
     summary='Get the details of all Class objects from the DB.'
 )
 def get_all_classes(database: Session = Depends(get_db)):
-    classes = crud.get_all_classes(database)
+    classes = classes_crud.get_all_classes(database)
     if classes is None:
         raise HTTPException(
             status_code=404,
@@ -48,7 +48,7 @@ def get_all_classes(database: Session = Depends(get_db)):
     summary='Get the details of a Class object from the DB.'
 )
 def get_class(name: str, database: Session = Depends(get_db)):
-    class_ = crud.get_class_by_name(database, name)
+    class_ = classes_crud.get_class_by_name(database, name)
     if class_ is None:
         handlers.handle_class_is_none(name)
     
@@ -66,13 +66,13 @@ def create_class(class_: schemas.ClassCreate, db: Session = Depends(get_db)):
             status_code=400,
             detail="Името на Клас трябва да бъде между 2 и 10 символа!"
         )
-    db_class = crud.get_class_by_name(db, class_.name)
+    db_class = classes_crud.get_class_by_name(db, class_.name)
     if db_class:
         raise HTTPException(
             status_code=400,
             detail=f"Клас със име '{class_.name}' вече съществува!"
         )
-    crud.create_class(db, class_)
+    classes_crud.create_class(db, class_)
 
 
 @router.put(
@@ -82,10 +82,10 @@ def create_class(class_: schemas.ClassCreate, db: Session = Depends(get_db)):
 )
 def edit_class(name: str, class_: schemas.ClassCreate,
                db: Session = Depends(get_db)):
-    db_class = crud.get_class_by_name(db, name)
+    db_class = classes_crud.get_class_by_name(db, name)
     if db_class is None:
         handlers.handle_class_is_none(name)
-    if crud.get_class_by_name(db, class_.name) is not None:
+    if classes_crud.get_class_by_name(db, class_.name) is not None:
         raise HTTPException(
             status_code=400,
             detail=f"Клас със име '{class_.name}' вече съществува!"
@@ -95,7 +95,7 @@ def edit_class(name: str, class_: schemas.ClassCreate,
             status_code=400,
             detail=f"Името на Клас трябва да бъде между 2 и 10 символа!"
         )
-    crud.edit_class(db, db_class, class_)
+    classes_crud.edit_class(db, db_class, class_)
 
 
 @router.delete(
@@ -104,7 +104,7 @@ def edit_class(name: str, class_: schemas.ClassCreate,
     dependencies=[Depends(get_user_is_admin)]
 )
 async def delete_class(name: str, database: Session = Depends(get_db)):
-    db_class = crud.get_class_by_name(database, name)
+    db_class = classes_crud.get_class_by_name(database, name)
     if db_class is None:
         await handlers.handle_class_is_none(name)
     
@@ -119,7 +119,7 @@ async def delete_class(name: str, database: Session = Depends(get_db)):
             )
         except:
             pass
-    crud.delete_class(database, db_class)
+    classes_crud.delete_class(database, db_class)
 
 
 @router.put(
@@ -129,10 +129,10 @@ async def delete_class(name: str, database: Session = Depends(get_db)):
 )
 def set_class_teacher(name: str, email: schemas.Email,
                       database: Session = Depends(get_db)):
-    db_class = crud.get_class_by_name(database, name)
+    db_class = classes_crud.get_class_by_name(database, name)
     if db_class is None:
         handlers.handle_class_is_none(name)
-    db_user = crud.get_user_by_email(database, email.email)
+    db_user = users_crud.get_user_by_email(database, email.email)
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -143,8 +143,8 @@ def set_class_teacher(name: str, email: schemas.Email,
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Този Потребител вече е класен на '{db_user.class_}'!"
         )
-    crud.remove_class_teacher(database, db_class)
-    crud.set_class_teacher(database, db_class, db_user)
+    classes_crud.remove_class_teacher(database, db_class)
+    classes_crud.set_class_teacher(database, db_class, db_user)
 
 
 @router.delete(
@@ -153,10 +153,10 @@ def set_class_teacher(name: str, email: schemas.Email,
     dependencies=[Depends(get_user_is_admin)]
 )
 def remove_subject_from_class(name: str, database: Session = Depends(get_db)):
-    db_class = crud.get_class_by_name(database, name)
+    db_class = classes_crud.get_class_by_name(database, name)
     if db_class is None:
         handlers.handle_class_is_none(name)
-    crud.remove_class_teacher(database, db_class)
+    classes_crud.remove_class_teacher(database, db_class)
 
 
 @router.get(
@@ -166,7 +166,7 @@ def remove_subject_from_class(name: str, database: Session = Depends(get_db)):
     dependencies=[Depends(get_user_is_admin)]
 )
 def get_class_discord_key(name: str, database: Session = Depends(get_db)):
-    class_ = crud.get_class_by_name(database, name)
+    class_ = classes_crud.get_class_by_name(database, name)
     if class_ is None:
         handlers.handle_class_is_none(name)
     

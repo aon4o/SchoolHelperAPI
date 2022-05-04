@@ -5,7 +5,7 @@ from jose import jwt
 import environ
 from datetime import datetime, timedelta
 
-import crud
+from crud import users_crud
 import models
 import schemas
 from dependencies import get_db, get_current_user
@@ -51,14 +51,14 @@ def register(user: schemas.UserCreate, database: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Невалиден Имейл адрес!'
         )
-    if crud.get_user_by_email(database, user.email):
+    if users_crud.get_user_by_email(database, user.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Този Имейл вече е регистриран!'
         )
     
     user.password = bcrypt.hash(user.password)
-    crud.create_user(database, user)
+    users_crud.create_user(database, user)
 
 
 @router.post(
@@ -67,7 +67,7 @@ def register(user: schemas.UserCreate, database: Session = Depends(get_db)):
     summary='Path for User Login'
 )
 def login(request: schemas.Login, database: Session = Depends(get_db)):
-    user = crud.get_user_by_email(database, request.email)
+    user = users_crud.get_user_by_email(database, request.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -4,7 +4,7 @@ from typing import List
 
 import handlers
 from dependencies import get_db, get_user_is_verified, get_user_is_admin
-import crud
+from crud import subjects_crud
 import schemas
 
 router = APIRouter(
@@ -20,7 +20,7 @@ router = APIRouter(
     summary="Gets a list of all Subjects",
 )
 def get_subjects(database: Session = Depends(get_db)):
-    subjects = crud.get_all_subjects(database)
+    subjects = subjects_crud.get_all_subjects(database)
     if subjects is None:
         raise HTTPException(
             status_code=404,
@@ -36,7 +36,7 @@ def get_subjects(database: Session = Depends(get_db)):
     summary="Gets a Subject object from the DB.",
 )
 def get_subject(name: str, database: Session = Depends(get_db)):
-    subject = crud.get_subject_by_name(database, name)
+    subject = subjects_crud.get_subject_by_name(database, name)
     if subject is None:
         handlers.handle_subject_is_none(name)
     
@@ -56,13 +56,13 @@ def create_subject(subject: schemas.SubjectCreate,
             detail="Името на Предмет трябва да бъде между 3 и 50 символа!"
         )
     
-    db_subject = crud.get_subject_by_name(database, subject.name)
+    db_subject = subjects_crud.get_subject_by_name(database, subject.name)
     if db_subject:
         raise HTTPException(
             status_code=400,
             detail=f"Предмет с име '{subject.name}' вече съществува!"
         )
-    crud.create_subject(database, subject)
+    subjects_crud.create_subject(database, subject)
 
 
 @router.put(
@@ -72,8 +72,8 @@ def create_subject(subject: schemas.SubjectCreate,
 )
 def edit_subject(name: str, subject: schemas.SubjectCreate,
                  database: Session = Depends(get_db)):
-    db_subject = crud.get_subject_by_name(database, name)
-    db_new_subject = crud.get_subject_by_name(database, subject.name)
+    db_subject = subjects_crud.get_subject_by_name(database, name)
+    db_new_subject = subjects_crud.get_subject_by_name(database, subject.name)
     if db_subject is None:
         handlers.handle_subject_is_none(subject.name)
     if db_new_subject is not None:
@@ -86,7 +86,7 @@ def edit_subject(name: str, subject: schemas.SubjectCreate,
             status_code=400,
             detail="Името на Предмет трябва да бъде между 3 и 50 символа!"
         )
-    crud.edit_subject(database, db_subject, subject)
+    subjects_crud.edit_subject(database, db_subject, subject)
 
 
 @router.delete(
@@ -95,10 +95,10 @@ def edit_subject(name: str, subject: schemas.SubjectCreate,
     dependencies=[Depends(get_user_is_admin)]
 )
 def delete_subject(name: str, database: Session = Depends(get_db)):
-    db_subject = crud.get_subject_by_name(database, name)
+    db_subject = subjects_crud.get_subject_by_name(database, name)
     if db_subject is None:
         handlers.handle_subject_is_none(name)
-    crud.delete_subject(database, db_subject)
+    subjects_crud.delete_subject(database, db_subject)
 
 
 @router.get(
@@ -107,7 +107,7 @@ def delete_subject(name: str, database: Session = Depends(get_db)):
     summary='Get a list of the Classes that are assigned to this Subject.'
 )
 def get_subject_classes(name: str, database: Session = Depends(get_db)):
-    subject = crud.get_subject_by_name(database, name)
+    subject = subjects_crud.get_subject_by_name(database, name)
     if subject is None:
         handlers.handle_subject_is_none(name)
     if subject.classes is None:
