@@ -21,7 +21,7 @@ def get_class_by_guild_id(db: Session, guild_id: str):
 
 
 def get_all_classes(db: Session):
-    return db.query(models.Class).all()
+    return db.query(models.Class).order_by(models.Class.name).all()
 
 
 def get_initialized_classes_count(db: Session):

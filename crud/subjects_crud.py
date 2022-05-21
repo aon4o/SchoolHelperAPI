@@ -18,7 +18,7 @@ def get_class_subject_by_objects(
 
 
 def get_all_subjects(db: Session):
-    return db.query(models.Subject).all()
+    return db.query(models.Subject).order_by(models.Subject.name).all()
 
 
 def create_subject(db: Session, subject: schemas.SubjectCreate):
